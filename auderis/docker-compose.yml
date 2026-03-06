@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: auderis-db
+    environment:
+      POSTGRES_USER: auderis
+      POSTGRES_PASSWORD: auderis123
+      POSTGRES_DB: auderis
+    volumes:
+      - auderis-db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: auderis-backend
+    environment:
+      DATABASE_URL: postgresql://auderis:auderis123@db:5432/auderis?schema=public
+      JWT_SECRET: "super-secret-auderis"
+      PORT: 4000
+      CORS_ORIGIN: "http://localhost:5173"
+    ports:
+      - "4000:4000"
+    depends_on:
+      - db
+
+  web:
+    build:
+      context: ./web
+    container_name: auderis-web
+    environment:
+      VITE_API_URL: "http://localhost:4000"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  auderis-db-data:

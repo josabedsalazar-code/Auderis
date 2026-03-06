@@ -1,0 +1,17 @@
+name: auderis_mobile
+description: AUDERIS Mobile
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  shared_preferences: ^2.3.2
+  image_picker: ^1.1.2
+
+flutter:
+  uses-material-design: true

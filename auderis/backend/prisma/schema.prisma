@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ChecklistStatus {
+  OPEN
+  DONE
+}
+
+enum FindingStatus {
+  OPEN
+  IN_REVIEW
+  CLOSED
+}
+
+enum FindingSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  name      String
+  taxId     String?
+  contact   String?
+  createdAt DateTime @default(now())
+  audits    Audit[]
+}
+
+model Audit {
+  id        String      @id @default(uuid())
+  title     String
+  scope     String?
+  status    AuditStatus @default(PLANNED)
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id])
+  createdAt DateTime    @default(now())
+  checklists Checklist[]
+  findings   Finding[]
+  evidence   Evidence[]
+}
+
+model Checklist {
+  id        String          @id @default(uuid())
+  auditId   String
+  audit     Audit           @relation(fields: [auditId], references: [id])
+  title     String
+  status    ChecklistStatus @default(OPEN)
+  createdAt DateTime        @default(now())
+}
+
+model Finding {
+  id          String         @id @default(uuid())
+  auditId     String
+  audit       Audit          @relation(fields: [auditId], references: [id])
+  title       String
+  severity    FindingSeverity
+  status      FindingStatus  @default(OPEN)
+  description String?
+  createdAt   DateTime       @default(now())
+  evidence    Evidence[]
+}
+
+model Evidence {
+  id        String   @id @default(uuid())
+  auditId   String?
+  audit     Audit?   @relation(fields: [auditId], references: [id])
+  findingId String?
+  finding   Finding? @relation(fields: [findingId], references: [id])
+  filename  String
+  url       String
+  createdAt DateTime @default(now())
+}
